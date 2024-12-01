@@ -5,11 +5,11 @@ export interface Notice {
   category: string;
   date: string;
   createdAt: number;
-  updatedAt?: number;
+  updatedAt: number;
   views: number;
-  keywords?: string[];
-  searchText?: string;
+  keywords: string[];
+  searchText: string;
   isPinned: boolean;
-  startDate?: string | null;
-  endDate?: string | null;
+  startDate: string | undefined;
+  endDate: string | undefined;
 }

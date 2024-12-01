@@ -159,63 +159,65 @@ const NoticePage = () => {
         />
       </div>
 
-      <div className="space-y-0">
-        {loading ? (
-          <div>로딩 중...</div>
-        ) : paginatedNotices.length === 0 ? (
-          <div>등록된 공지사항이 없습니다.</div>
-        ) : (
-          <>
-            {paginatedNotices.map((notice) => (
-              <div 
-                key={notice.id}
-                onClick={() => handleNoticeClick(notice)}
-                className="border-b border-gray-100 p-3 hover:bg-gray-50 transition-colors cursor-pointer"
-              >
-                <div className="flex flex-col space-y-1">
-                  <div className="flex items-center space-x-2">
-                    {notice.isPinned && (
-                      <span className="inline-block px-2 py-0.5 text-xs bg-gray-900 text-white rounded">
-                        고정
-                      </span>
-                    )}
-                    <h2 className="text-base font-medium text-gray-900">{notice.title}</h2>
-                  </div>
-                  <div className="flex gap-2 text-xs text-gray-500">
-                    <span className="inline-block px-1.5 py-0.5 bg-gray-100 rounded">
-                      {notice.category}
-                    </span>
-                    <span>•</span>
-                    <span>{new Date(notice.date).toLocaleDateString()}</span>
-                    <span>•</span>
-                    <span>조회 {notice.views || 0}</span>
-                  </div>
-                </div>
-              </div>
-            ))}
-
-            <div className="flex justify-center gap-2 mt-6">
-              <button
-                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                disabled={currentPage === 1}
-                className="px-4 py-2 text-sm bg-white border border-gray-200 rounded hover:bg-gray-50 disabled:bg-gray-50 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
-              >
-                이전
-              </button>
-              <span className="px-4 py-2 text-sm text-gray-600">
-                {currentPage} / {Math.ceil(filteredNotices.length / itemsPerPage)}
-              </span>
-              <button
-                onClick={() => setCurrentPage(p => Math.min(Math.ceil(filteredNotices.length / itemsPerPage), p + 1))}
-                disabled={currentPage >= Math.ceil(filteredNotices.length / itemsPerPage)}
-                className="px-4 py-2 text-sm bg-white border border-gray-200 rounded hover:bg-gray-50 disabled:bg-gray-50 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
-              >
-                다음
-              </button>
+      <div className="space-y-2">
+  {loading ? (
+    <div className="text-center p-4">로딩 중...</div>
+  ) : paginatedNotices.length === 0 ? (
+    <div className="text-center p-4">등록된 공지사항이 없습니다.</div>
+  ) : (
+    <>
+      {paginatedNotices.map((notice) => (
+        <div 
+          key={notice.id}
+          onClick={() => handleNoticeClick(notice)}
+          className="border p-4 rounded-lg shadow hover:shadow-md transition-shadow duration-200 cursor-pointer bg-white"
+        >
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
+            <div className="flex items-center gap-2">
+              {notice.isPinned && (
+                <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full">
+                  고정
+                </span>
+              )}
+              <h2 className="text-lg font-semibold">{notice.title}</h2>
             </div>
-          </>
-        )}
+            <div className="flex items-center gap-2 text-sm text-gray-500">
+              <span className="font-medium">{notice.category}</span>
+              <span className="text-gray-300">•</span>
+              <span>{new Date(notice.date).toLocaleDateString('ko-KR', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+              })}</span>
+              <span className="text-gray-300">•</span>
+              <span>조회 {notice.views || 0}</span>
+            </div>
+          </div>
+        </div>
+      ))}
+
+      <div className="flex justify-center items-center gap-4 mt-6">
+        <button
+          onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+          disabled={currentPage === 1}
+          className="px-4 py-2 bg-white border rounded-lg hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors duration-200"
+        >
+          이전
+        </button>
+        <span className="px-4 py-2 font-medium">
+          {currentPage} / {Math.max(1, Math.ceil(filteredNotices.length / itemsPerPage))}
+        </span>
+        <button
+          onClick={() => setCurrentPage(p => Math.min(Math.ceil(filteredNotices.length / itemsPerPage), p + 1))}
+          disabled={currentPage >= Math.ceil(filteredNotices.length / itemsPerPage)}
+          className="px-4 py-2 bg-white border rounded-lg hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors duration-200"
+        >
+          다음
+        </button>
       </div>
+    </>
+  )}
+</div>
 
       {isModalOpen && selectedNotice && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
