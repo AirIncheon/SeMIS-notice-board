@@ -3,7 +3,22 @@
 import { useState } from 'react';
 import { collection, addDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { Notice } from '@/types/notice';
+
+// Notice 인터페이스 정의 추가
+interface Notice {
+  title: string;
+  content: string;
+  category: string;
+  date: string;
+  createdAt: number;
+  updatedAt: number;
+  views: number;
+  keywords: string[];
+  searchText: string;
+  isPinned: boolean;
+  startDate?: string;  // 선택적 필드로 변경
+  endDate?: string;    // 선택적 필드로 변경
+}
 
 const AdminPage = () => {
   const [formData, setFormData] = useState({
@@ -56,8 +71,8 @@ const AdminPage = () => {
         keywords: formData.keywords.split(',').map(k => k.trim()).filter(k => k),
         searchText: `${formData.title} ${formData.content}`.toLowerCase(),
         isPinned: formData.isPinned,
-        startDate: formData.startDate || undefined,
-        endDate: formData.endDate || undefined
+        startDate: formData.startDate || undefined,  // null 대신 undefined 사용
+        endDate: formData.endDate || undefined      // null 대신 undefined 사용
       };
 
       await addDoc(collection(db, 'notices'), newNotice);
