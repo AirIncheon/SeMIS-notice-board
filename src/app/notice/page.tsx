@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
 import { query, orderBy, getDocs, updateDoc, doc, deleteDoc } from 'firebase/firestore';
 import { collection as firestoreCollection } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
@@ -116,9 +115,8 @@ const NoticePage = () => {
   };
 
   const filteredNotices = notices.filter(notice => {
-    // 게시기간 확인
     const now = new Date();
-    now.setHours(0, 0, 0, 0); // 시간을 제외한 날짜만 비교
+    now.setHours(0, 0, 0, 0);
 
     const startDate = notice.startDate ? new Date(notice.startDate) : null;
     const endDate = notice.endDate ? new Date(notice.endDate) : null;
@@ -126,13 +124,11 @@ const NoticePage = () => {
     if (startDate) startDate.setHours(0, 0, 0, 0);
     if (endDate) endDate.setHours(0, 0, 0, 0);
 
-    // 게시 기간 확인
     const isWithinPeriod = (!startDate && !endDate) || 
                           (startDate && !endDate && startDate <= now) ||
                           (!startDate && endDate && now <= endDate) ||
                           (startDate && endDate && startDate <= now && now <= endDate);
 
-    // 검색어 필터링
     const matchesSearch = notice.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       notice.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
       notice.keywords?.some(keyword => 
@@ -153,17 +149,17 @@ const NoticePage = () => {
 
   return (
     <div className="max-w-4xl mx-auto p-4">
-      <div className="mb-6">
+      <div className="mb-4">
         <input
           type="text"
           placeholder="검색어를 입력하세요"
-          className="w-full p-2 border rounded bg-white text-black"
+          className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:border-gray-400 transition-colors"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-0">
         {loading ? (
           <div>로딩 중...</div>
         ) : paginatedNotices.length === 0 ? (
@@ -174,19 +170,21 @@ const NoticePage = () => {
               <div 
                 key={notice.id}
                 onClick={() => handleNoticeClick(notice)}
-                className="border p-4 rounded shadow hover:shadow-md transition cursor-pointer bg-white"
+                className="border-b border-gray-100 p-3 hover:bg-gray-50 transition-colors cursor-pointer"
               >
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center gap-2">
+                <div className="flex flex-col space-y-1">
+                  <div className="flex items-center space-x-2">
                     {notice.isPinned && (
-                      <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded">
+                      <span className="inline-block px-2 py-0.5 text-xs bg-gray-900 text-white rounded">
                         고정
                       </span>
                     )}
-                    <h2 className="text-lg font-semibold text-black">{notice.title}</h2>
+                    <h2 className="text-base font-medium text-gray-900">{notice.title}</h2>
                   </div>
-                  <div className="flex gap-2 text-sm text-gray-500">
-                    <span>{notice.category}</span>
+                  <div className="flex gap-2 text-xs text-gray-500">
+                    <span className="inline-block px-1.5 py-0.5 bg-gray-100 rounded">
+                      {notice.category}
+                    </span>
                     <span>•</span>
                     <span>{new Date(notice.date).toLocaleDateString()}</span>
                     <span>•</span>
@@ -196,21 +194,21 @@ const NoticePage = () => {
               </div>
             ))}
 
-            <div className="flex justify-center gap-2 mt-4">
+            <div className="flex justify-center gap-2 mt-6">
               <button
                 onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
-                className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                className="px-4 py-2 text-sm bg-white border border-gray-200 rounded hover:bg-gray-50 disabled:bg-gray-50 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
               >
                 이전
               </button>
-              <span className="px-4 py-2">
+              <span className="px-4 py-2 text-sm text-gray-600">
                 {currentPage} / {Math.ceil(filteredNotices.length / itemsPerPage)}
               </span>
               <button
                 onClick={() => setCurrentPage(p => Math.min(Math.ceil(filteredNotices.length / itemsPerPage), p + 1))}
                 disabled={currentPage >= Math.ceil(filteredNotices.length / itemsPerPage)}
-                className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                className="px-4 py-2 text-sm bg-white border border-gray-200 rounded hover:bg-gray-50 disabled:bg-gray-50 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
               >
                 다음
               </button>
@@ -224,23 +222,25 @@ const NoticePage = () => {
           <div className="bg-white rounded-lg max-w-2xl w-full max-h-[80vh] overflow-y-auto p-6 relative">
             <div className="sticky top-0 bg-white border-b pb-4 mb-4">
               <div className="flex justify-between items-start">
-                <h2 className="text-xl font-bold text-black">{selectedNotice.title}</h2>
+                <h2 className="text-lg font-medium text-gray-900">{selectedNotice.title}</h2>
                 <button 
                   onClick={() => setIsModalOpen(false)}
-                  className="text-gray-500 hover:text-gray-700 text-xl p-2"
+                  className="text-gray-500 hover:text-gray-700"
                 >
                   ✕
                 </button>
               </div>
-              <div className="text-sm text-gray-500 mt-2">
-                <span>{selectedNotice.category}</span>
-                <span className="mx-2">•</span>
+              <div className="flex gap-2 text-sm text-gray-500 mt-2">
+                <span className="inline-block px-2 py-0.5 bg-gray-100 rounded">
+                  {selectedNotice.category}
+                </span>
+                <span>•</span>
                 <span>{new Date(selectedNotice.date).toLocaleDateString()}</span>
-                <span className="mx-2">•</span>
+                <span>•</span>
                 <span>조회 {selectedNotice.views}</span>
                 {selectedNotice.startDate && (
                   <>
-                    <span className="mx-2">•</span>
+                    <span>•</span>
                     <span>게시기간: {new Date(selectedNotice.startDate).toLocaleDateString()}
                       {selectedNotice.endDate && ` ~ ${new Date(selectedNotice.endDate).toLocaleDateString()}`}
                     </span>
@@ -249,17 +249,17 @@ const NoticePage = () => {
               </div>
             </div>
 
-            <div className="text-black whitespace-pre-wrap mb-4 min-h-[200px]">
+            <div className="text-gray-800 whitespace-pre-wrap mb-4 min-h-[200px]">
               {selectedNotice.content}
             </div>
 
-            <div className="mb-4 flex justify-end gap-2">
+            <div className="flex justify-end gap-2 mb-4">
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   handleEdit(selectedNotice);
                 }}
-                className="text-sm px-2 py-1 text-gray-500 hover:text-gray-700"
+                className="text-sm text-gray-500 hover:text-gray-700"
               >
                 수정
               </button>
@@ -268,30 +268,30 @@ const NoticePage = () => {
                   e.stopPropagation();
                   handleDelete(selectedNotice);
                 }}
-                className="text-sm px-2 py-1 text-red-500 hover:text-red-700"
+                className="text-sm text-red-500 hover:text-red-700"
               >
                 삭제
               </button>
             </div>
 
-            <div className="sticky bottom-0 bg-white border-t pt-4 mt-4">
+            <div className="sticky bottom-0 bg-white border-t pt-4">
               <div className="flex justify-between items-center">
                 <button
                   onClick={() => handlePrevNotice(selectedNotice)}
-                  className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                  className="px-4 py-2 text-sm bg-white border border-gray-200 rounded hover:bg-gray-50 disabled:bg-gray-50 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
                   disabled={!hasPrevNotice(selectedNotice)}
                 >
                   이전
                 </button>
                 <button 
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
+                  className="px-4 py-2 text-sm bg-white border border-gray-200 rounded hover:bg-gray-50 transition-colors"
                 >
                   닫기
                 </button>
                 <button
                   onClick={() => handleNextNotice(selectedNotice)}
-                  className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                  className="px-4 py-2 text-sm bg-white border border-gray-200 rounded hover:bg-gray-50 disabled:bg-gray-50 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
                   disabled={!hasNextNotice(selectedNotice)}
                 >
                   다음
