@@ -7,7 +7,7 @@ import { db, storage } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
 import { Notice } from '@/types/notice';
 
-export default function EditNoticePage({ params }: { params: { id: string } }) {
+const EditNoticePage = ({ params }: { params: { id: string } }) => {
   const router = useRouter();
   const [formData, setFormData] = useState({
     title: '',
@@ -19,7 +19,6 @@ export default function EditNoticePage({ params }: { params: { id: string } }) {
     endDate: '',
     password: ''
   });
-
   const [isLoading, setIsLoading] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
@@ -35,8 +34,6 @@ export default function EditNoticePage({ params }: { params: { id: string } }) {
         
         if (noticeSnap.exists()) {
           const notice = noticeSnap.data();
-          console.log('전체 공지사항 데이터:', notice);
-          
           setFormData({
             title: notice.title,
             content: notice.content,
@@ -47,9 +44,7 @@ export default function EditNoticePage({ params }: { params: { id: string } }) {
             endDate: notice.endDate || '',
             password: ''
           });
-
-          if (notice.attachments && Array.isArray(notice.attachments)) {
-            console.log('첨부파일 데이터:', notice.attachments);
+          if (notice.attachments) {
             setExistingFiles(notice.attachments);
           }
         }
@@ -62,6 +57,13 @@ export default function EditNoticePage({ params }: { params: { id: string } }) {
 
     fetchNotice();
   }, [params.id]);
+
+  const handleChange = (field: string, value: string | boolean) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -112,13 +114,6 @@ export default function EditNoticePage({ params }: { params: { id: string } }) {
     setFiles(prev => prev.filter((_, i) => i !== index));
   };
 
-  const handleChange = (field: string, value: string | boolean) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
-  };
-
   const uploadFile = async (file: File) => {
     const storageRef = ref(storage, `uploads/${Date.now()}_${file.name}`);
     const snapshot = await uploadBytes(storageRef, file);
@@ -132,8 +127,7 @@ export default function EditNoticePage({ params }: { params: { id: string } }) {
     };
   };
 
-
-const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (formData.password !== 'admin1234') {
@@ -189,7 +183,7 @@ const handleSubmit = async (e: React.FormEvent) => {
     }
   };
 
-return (
+  return (
     <div className="max-w-2xl mx-auto p-4">
       <h1 className="text-2xl font-bold mb-6">공지사항 수정</h1>
       
@@ -257,6 +251,17 @@ return (
             onChange={(e) => handleChange('content', e.target.value)}
             className="w-full p-2 border rounded min-h-[200px]"
             required
+          />
+        </div>
+
+        <div>
+          <label className="block mb-1">검색 키워드 (쉼표로 구분)</label>
+          <input
+            type="text"
+            value={formData.keywords}
+            onChange={(e) => handleChange('keywords', e.target.value)}
+            className="w-full p-2 border rounded"
+            placeholder="예: 공지, 중요, 이벤트"
           />
         </div>
 
@@ -328,17 +333,6 @@ return (
         </div>
 
         <div>
-          <label className="block mb-1">검색 키워드 (쉼표로 구분)</label>
-          <input
-            type="text"
-            value={formData.keywords}
-            onChange={(e) => handleChange('keywords', e.target.value)}
-            className="w-full p-2 border rounded"
-            placeholder="예: 공지, 중요, 이벤트"
-          />
-        </div>
-
-        <div>
           <label className="block mb-1">관리자 비밀번호</label>
           <input
             type="password"
@@ -373,5 +367,6 @@ return (
       )}
     </div>
   );
-}
+};
 
+export default EditNoticePage;
