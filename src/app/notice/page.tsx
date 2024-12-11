@@ -259,6 +259,30 @@ const NoticePage = () => {
                 {selectedNotice.content}
               </div>
 
+{selectedNotice.attachments && selectedNotice.attachments.length > 0 && (
+  <div className="mt-4 border-t pt-4">
+    <h3 className="font-medium mb-2">첨부파일</h3>
+    <ul className="space-y-2">
+      {selectedNotice.attachments.map((file, index) => (
+        <li key={index} className="flex items-center gap-2">
+          <a           
+            href={file.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-500 hover:text-blue-700 flex items-center gap-2"
+            download
+          >
+            <span>{file.name}</span>
+            <span className="text-sm text-gray-500">
+              ({Math.round(file.size / 1024).toLocaleString()}KB)
+            </span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+)}
+
               <div className="flex justify-end gap-2 mt-4">
                 <button
                   onClick={(e) => {

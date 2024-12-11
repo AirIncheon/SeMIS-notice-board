@@ -10,6 +10,12 @@ export interface Notice {
   keywords: string[];
   searchText: string;
   isPinned: boolean;
-  startDate: string | undefined;
-  endDate: string | undefined;
+  startDate: string | null;
+  endDate: string | null;
+  attachments?: {
+    name: string;
+    url: string;
+    type: string;
+    size: number;
+  }[];
 }
