@@ -17,8 +17,9 @@ const AdminPage = () => {
     isPinned: false,
     startDate: '',
     endDate: '',
-    password: ''
-  });
+    password: '',           // 쉼표 추가
+    requireSignature: false // 새로 추가
+});
   const [isLoading, setIsLoading] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
@@ -151,7 +152,6 @@ const AdminPage = () => {
 
     try {
       setIsLoading(true);
-      
       // 파일 업로드
       const attachments = await Promise.all(files.map(file => uploadFile(file)));
 
@@ -168,7 +168,9 @@ const AdminPage = () => {
         isPinned: formData.isPinned,
         startDate: formData.startDate || null,
         endDate: formData.endDate || null,
-        attachments
+        attachments,
+        requireSignature: formData.requireSignature,  // 추가
+        signatures: []  // 추가: 빈 서명 배열로 초기화
       };
 
       await addDoc(collection(db, 'notices'), newNotice);
@@ -176,6 +178,7 @@ const AdminPage = () => {
       setAlertMessage('공지사항이 등록되었습니다.');
       setShowAlert(true);
       
+      // 폼 초기화
       setFormData({
         title: '',
         content: '',
@@ -184,12 +187,12 @@ const AdminPage = () => {
         isPinned: false,
         startDate: '',
         endDate: '',
-        password: ''
+        password: '',
+        requireSignature: false  // 추가
       });
       setFiles([]);
 
-      await fetchNotices();
-
+      // 1.5초 후 목록 페이지로 이동
       setTimeout(() => {
         router.push('/notice');
       }, 1500);
@@ -230,6 +233,31 @@ const AdminPage = () => {
             <option value="중요">중요</option>
             <option value="이벤트">이벤트</option>
           </select>
+        </div>
+
+        {/* 체크박스 그룹 추가 */}
+        <div className="flex space-x-6">
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="isPinned"
+              checked={formData.isPinned}
+              onChange={(e) => handleChange('isPinned', e.target.checked)}
+              className="w-4 h-4"
+            />
+            <label htmlFor="isPinned">상단 고정</label>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="requireSignature"
+              checked={formData.requireSignature}
+              onChange={(e) => handleChange('requireSignature', e.target.checked)}
+              className="w-4 h-4"
+            />
+            <label htmlFor="requireSignature">확인 서명 필요</label>
+          </div>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
